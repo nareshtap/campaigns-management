@@ -1,0 +1,10 @@
+# Any node module
+*/node_modules
+
+# Any env file
+*/.env
+
+# Any Build
+*/dist
+
+**/package-lock.json

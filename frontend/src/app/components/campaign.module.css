@@ -1,0 +1,85 @@
+.containerLarge {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.contentBody {
+  padding: 50px 0;
+}
+.noDataFound {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btnAdd {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 16px 0;
+}
+.btnAdd button,
+.btnSchedule {
+  background: #0c5d58;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 24px;
+  padding: 8px 24px;
+}
+.tableWrapper {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: auto;
+}
+.tableWrapper thead tr th {
+  padding: 12px 16px;
+  background: #0c5d58;
+  color: #fff;
+  font-size: 18px !important;
+  font-weight: 500;
+}
+.tableWrapper thead tr th,
+.tableWrapper tbody tr td {
+  border-right: 1px solid #e8e8e8;
+  padding: 10px;
+  border-top: 1px solid #e8e8e8;
+  border-bottom: 1px solid #e8e8e8;
+  font-size: 15px;
+}
+.tableWrapper tbody tr:nth-child(odd) {
+  background: #f7f7f7;
+}
+.tableWrapper tbody tr td {
+  text-align: center;
+}
+.btnIcon {
+  border: none;
+  cursor: pointer;
+}
+
+.modalWrapper :global .MuiDialog-container .MuiDialogTitle-root {
+  background: #0c5d58;
+  color: #fff;
+}
+
+.modalWrapper :global .MuiDialogActions-root .MuiButton-text {
+  border: solid 1px #0c5d58;
+  border-radius: 6px;
+  color: #0c5d58;
+  background: transparent;
+}
+.modalWrapper :global .MuiDialogActions-root .MuiButton-text:hover {
+  background: #0c5d58;
+  color: #fff;
+}
+.formWrapper {
+  padding: 24px 0 0;
+}
+.formWrapper h5,
+.scheduleWrapper h6 {
+  color: #0c5d58;
+  font-size: 20px !important;
+  line-height: 22px;
+  font-weight: 600;
+}

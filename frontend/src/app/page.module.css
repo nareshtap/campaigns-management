@@ -1,0 +1,11 @@
+.mian {
+    display: flex;
+    flex-direction: column;
+
+}
+.main h2 {
+    background: #0c5d58 ;
+    padding: 16px 24px;
+    color: #fff;
+    font-size: 32px;
+}
