@@ -6,5 +6,6 @@
 
 # Any Build
 */dist
+*/.next
 
 **/package-lock.json

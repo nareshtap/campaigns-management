@@ -23,48 +23,78 @@ const CampaignTable: React.FC = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [currentCampaign, setCurrentCampaign] = useState<any>(null);
 
+  const getNextScheduledActivation = (
+    schedule: any[],
+    startDate: string,
+    endDate: string
+  ) => {
+    const now = new Date();
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (now > end) {
+      return "N/A";
+    }
+
+    let nextActivation: Date | null = null;
+
+    for (const sch of schedule) {
+      const weekdays = sch.weekdays;
+      const startTime = sch.startTime;
+
+      for (const weekday of weekdays) {
+        const weekdayIndex = [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ].indexOf(weekday);
+
+        for (
+          let currentDate = new Date(start);
+          currentDate <= end;
+          currentDate.setDate(currentDate.getDate() + 1)
+        ) {
+          if (currentDate.getDay() === weekdayIndex) {
+            const activationDate = new Date(currentDate);
+            activationDate.setHours(...parseTime(startTime));
+            if (
+              activationDate >= now &&
+              (!nextActivation || activationDate < nextActivation)
+            ) {
+              nextActivation = activationDate;
+            }
+          }
+        }
+      }
+    }
+
+    return nextActivation
+      ? `${formatDate(
+          nextActivation.toISOString()
+        )} ${nextActivation.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })}`
+      : "N/A";
+  };
+
+  const parseTime = (time: string): [number, number] => {
+    const [hoursMinutes, period] = time.split(" ");
+    let [hours, minutes] = hoursMinutes.split(":").map(Number);
+    if (period === "PM" && hours !== 12) hours += 12;
+    if (period === "AM" && hours === 12) hours = 0;
+    return [hours, minutes];
+  };
+
   const formatDate = (date: string) => {
     const options: any = { year: "numeric", month: "numeric", day: "numeric" };
     return new Date(date).toLocaleDateString(undefined, options);
   };
-
-  // const getNextScheduledActivation = (schedule: any[], startDate: string) => {
-  //   const now = new Date();
-
-  //   const start = new Date(startDate);
-
-  //   if (start > now) {
-  //     return `${formatDate(startDate)} ${schedule[0]?.startTime}`;
-  //   }
-
-  //   for (const sch of schedule) {
-  //     const weekdays = sch.weekdays;
-  //     const startTime = sch.startTime;
-  //     const endTime = sch.endTime;
-
-  //     for (let i = 0; i < weekdays.length; i++) {
-  //       const weekday = weekdays[i];
-  //       const weekdayIndex = [
-  //         "Sunday",
-  //         "Monday",
-  //         "Tuesday",
-  //         "Wednesday",
-  //         "Thursday",
-  //         "Friday",
-  //         "Saturday",
-  //       ].indexOf(weekday);
-
-  //       const nextActivation = new Date(now);
-  //       nextActivation.setDate(
-  //         now.getDate() + ((weekdayIndex + 7 - now.getDay()) % 7)
-  //       );
-
-  //       return `${formatDate(nextActivation.toISOString())} ${startTime}`;
-  //     }
-  //   }
-
-  //   return "N/A";
-  // };
 
   const fetchCampaigns = useCallback(() => {
     setIsLoading(true);
@@ -131,7 +161,7 @@ const CampaignTable: React.FC = () => {
                   <th>Campaign Type</th>
                   <th>Start Date</th>
                   <th>End Date</th>
-                  {/* <th>Next Scheduled Activation</th> */}
+                  <th>Next Scheduled Activation</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -148,12 +178,13 @@ const CampaignTable: React.FC = () => {
                     <td>{campaign.campaignType}</td>
                     <td>{formatDate(campaign.startDate)}</td>
                     <td>{formatDate(campaign.endDate)}</td>
-                    {/* <td>
+                    <td>
                       {getNextScheduledActivation(
                         campaign.schedule,
-                        campaign.startDate
+                        campaign.startDate,
+                        campaign.endDate
                       )}
-                    </td> */}
+                    </td>
                     <td>
                       <button
                         className={styles.btnIcon}
