@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-
+import React, { useState, useEffect, useCallback } from "react";
 import {
   TextField,
   Button,
@@ -15,9 +14,17 @@ import {
 import { Schedule } from "@/types/campaign";
 import styles from "./campaign.module.css";
 
+interface Campaign {
+  campaignType: string;
+  startDate: string;
+  endDate: string;
+  schedule: Schedule[];
+  _id?: string;
+}
+
 interface CampaignFormProps {
   onClose: () => void;
-  campaign?: any;
+  campaign?: Campaign;
 }
 
 const CampaignForm: React.FC<CampaignFormProps> = ({ onClose, campaign }) => {
@@ -28,6 +35,30 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onClose, campaign }) => {
     { weekdays: [], startTime: "", endTime: "" },
   ]);
 
+  const formatDateForInput = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toISOString().split("T")[0];
+  };
+
+  const convertTo24HourTime = (timeString: string) => {
+    const [time, modifier] = timeString.split(" ");
+    const [hours, minutes] = time.split(":").map(Number);
+    let adjustedHours = hours;
+    if (modifier === "PM" && hours !== 12) adjustedHours += 12;
+    if (modifier === "AM" && hours === 12) adjustedHours = 0;
+    return `${adjustedHours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  const formatSchedule = useCallback((schedule: Schedule[]) => {
+    return schedule.map(({ startTime, endTime, ...rest }) => ({
+      ...rest,
+      startTime: convertTo24HourTime(startTime),
+      endTime: convertTo24HourTime(endTime),
+    }));
+  }, []);
+
   useEffect(() => {
     if (campaign) {
       const { campaignType, startDate, endDate, schedule } = campaign;
@@ -36,30 +67,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onClose, campaign }) => {
       setEndDate(formatDateForInput(endDate));
       setSchedule(formatSchedule(schedule));
     }
-  }, [campaign]);
-
-  const formatDateForInput = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toISOString().split("T")[0];
-  };
-
-  const convertTo24HourTime = (timeString: string) => {
-    const [time, modifier] = timeString.split(" ");
-    let [hours, minutes] = time.split(":").map(Number);
-    if (modifier === "PM" && hours !== 12) hours += 12;
-    if (modifier === "AM" && hours === 12) hours = 0;
-    return `${hours.toString().padStart(2, "0")}:${minutes
-      .toString()
-      .padStart(2, "0")}`;
-  };
-
-  const formatSchedule = (schedule: any[]) => {
-    return schedule.map(({ startTime, endTime, ...rest }) => ({
-      ...rest,
-      startTime: convertTo24HourTime(startTime),
-      endTime: convertTo24HourTime(endTime),
-    }));
-  };
+  }, [campaign, formatSchedule]);
 
   const formatTimeToAMPM = (time: string) => {
     const [hours, minutes] = time.split(":").map(Number);
@@ -106,11 +114,11 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onClose, campaign }) => {
   const handleScheduleChange = (
     index: number,
     field: keyof Schedule,
-    value: any
+    value: string | string[]
   ) => {
     setSchedule((prevSchedule) => {
       const updatedSchedule = [...prevSchedule];
-      updatedSchedule[index][field] = value;
+      updatedSchedule[index][field] = value as never;
       return updatedSchedule;
     });
   };
@@ -251,13 +259,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onClose, campaign }) => {
       </Grid>
 
       <Box className={styles.scheduleWrapper} sx={{ margin: "24px 0" }}>
-        <Typography
-          variant="h6"
-          gutterBottom
-          sx={{
-            mb: 3,
-          }}
-        >
+        <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
           Campaign Schedule
         </Typography>
         {schedule.map(renderScheduleFields)}
